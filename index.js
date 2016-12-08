@@ -4,7 +4,7 @@ const amqp = require('amqplib/callback_api')
 const parse = require('fast-json-parse')
 const stringify = require('fast-safe-stringify')
 
-module.exports = function(thingy, opts) {
+module.exports = function(wilson, opts) {
 
   opts.maxRetries = opts.maxRetries || 10
   var connection = null
@@ -19,7 +19,7 @@ module.exports = function(thingy, opts) {
       connect(opts, (err) => {
         if (err) {
           if (retry <= opts.maxRetries) {
-            return thingy.logger.error({error: 'AMQP connect failed', retry: retry})
+            return wilson.log.error({error: 'AMQP connect failed', retry: retry})
           }
           clearInterval(timer)
           done(err)
@@ -41,10 +41,10 @@ module.exports = function(thingy, opts) {
         channel.consume(opts.q, (message) => {
           parseMessage(message, (err, parsed) => {
             if (err) {
-              thingy.logger.error({error: 'Invalid JSON message', message: message})
+              wilson.log.error({error: 'Invalid JSON message', message: message})
               return channel.ack(message)
             }
-            thingy.received(message, (err, result) => {
+            wilson.received(message, (err, result) => {
               channel.ack(message)
             })
           })
@@ -69,7 +69,7 @@ module.exports = function(thingy, opts) {
   }
 
   function exit(error) {
-    thingy.logger.error(error)
+    wilson.log.error(error)
     process.exit(1)
   }
 
