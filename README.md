@@ -1,1 +1,1 @@
-## thingy-amqp
+## wilson-amqp
